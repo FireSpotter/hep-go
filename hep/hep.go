@@ -8,10 +8,10 @@ package hep
 import (
 	"encoding/binary"
 	"errors"
-	//"lab.getweave.com/weave/flanders/sip"
 	"net"
-
-	"github.com/dgv/sipparser"
+	"time"
+	"github.com/FireSpotter/gossip/parser"
+	"github.com/FireSpotter/gossip/base"
 )
 
 /*************************************
@@ -105,8 +105,7 @@ type HepMsg struct {
 	KeepAliveTimer        uint16
 	AuthenticateKey       string
 	Body                  string
-	SipMsg                *sipparser.SipMsg
-	//SipMsg	*sip.SipMsg
+	SipMsg                base.SipMessage
 }
 
 func NewHepMsg(packet []byte) (*HepMsg, error) {
@@ -143,11 +142,12 @@ func (hepMsg *HepMsg) ParseHep1(udpPacket []byte) error {
 	hepMsg.Ip4SourceAddress = net.IP(udpPacket[8:12]).String()
 	hepMsg.Ip4DestinationAddress = net.IP(udpPacket[12:16]).String()
 	hepMsg.Body = string(udpPacket[16:])
+        hepMsg.Timestamp = uint32(time.Now().Unix())
 	if len(udpPacket[16:packetLength-4]) > 1 {
-		hepMsg.SipMsg = sipparser.ParseMsg(string(udpPacket[16:packetLength]))
-		//hepMsg.SipMsg, err = sip.NewSipMsg(udpPacket[16 : packetLength-4])
-		if hepMsg.SipMsg.Error != nil {
-			return hepMsg.SipMsg.Error
+                var err error
+		hepMsg.SipMsg, err  = parser.ParseMessage(udpPacket[16:packetLength], false, true)
+		if err != nil {
+			return err
 		}
 	} else {
 
@@ -171,10 +171,9 @@ func (hepMsg *HepMsg) ParseHep2(udpPacket []byte) error {
 	hepMsg.CaptureAgentId = binary.BigEndian.Uint16(udpPacket[24:26])
 	hepMsg.Body = string(udpPacket[28:])
 	if len(udpPacket[28:packetLength-4]) > 1 {
-		hepMsg.SipMsg = sipparser.ParseMsg(string(udpPacket[28:packetLength]))
-		//hepMsg.SipMsg, err = sip.NewSipMsg(udpPacket[16 : packetLength-4])
-		if hepMsg.SipMsg.Error != nil {
-			return hepMsg.SipMsg.Error
+		hepMsg.SipMsg, err = parser.ParseMessage(udpPacket[28:packetLength]), false, true)
+		if err != nil {
+			return err
 		}
 	} else {
 

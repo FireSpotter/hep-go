@@ -10,8 +10,9 @@ import (
 	"errors"
 	"net"
 	"time"
-	"github.com/FireSpotter/gossip/parser"
+
 	"github.com/FireSpotter/gossip/base"
+	"github.com/FireSpotter/gossip/parser"
 )
 
 /*************************************
@@ -104,7 +105,7 @@ type HepMsg struct {
 	CaptureAgentId        uint16
 	KeepAliveTimer        uint16
 	AuthenticateKey       string
-	Body                  string
+	Body                  []byte
 	SipMsg                base.SipMessage
 }
 
@@ -141,18 +142,17 @@ func (hepMsg *HepMsg) ParseHep1(udpPacket []byte) error {
 	hepMsg.DestinationPort = binary.BigEndian.Uint16(udpPacket[6:8])
 	hepMsg.Ip4SourceAddress = net.IP(udpPacket[8:12]).String()
 	hepMsg.Ip4DestinationAddress = net.IP(udpPacket[12:16]).String()
-	hepMsg.Body = string(udpPacket[16:])
-        hepMsg.Timestamp = uint32(time.Now().Unix())
+	hepMsg.Body = udpPacket[16:]
+	hepMsg.Timestamp = uint32(time.Now().Unix())
 	if len(udpPacket[16:packetLength-4]) > 1 {
 		var err error
-		hepMsg.SipMsg, err  = parser.ParseMessage(udpPacket[16:packetLength], false, true)
+		hepMsg.SipMsg, err = parser.ParseMessage(udpPacket[16:packetLength], false, true)
 		if err != nil {
 			return err
 		}
 	} else {
 
 	}
-
 	return nil
 }
 
@@ -169,7 +169,7 @@ func (hepMsg *HepMsg) ParseHep2(udpPacket []byte) error {
 	hepMsg.Timestamp = binary.LittleEndian.Uint32(udpPacket[16:20])
 	hepMsg.TimestampMicro = binary.LittleEndian.Uint32(udpPacket[20:24])
 	hepMsg.CaptureAgentId = binary.BigEndian.Uint16(udpPacket[24:26])
-	hepMsg.Body = string(udpPacket[28:])
+	hepMsg.Body = udpPacket[28:]
 	if len(udpPacket[28:packetLength-4]) > 1 {
 		var err error
 		hepMsg.SipMsg, err = parser.ParseMessage(udpPacket[28:packetLength], false, true)
@@ -224,7 +224,9 @@ func (hepMsg *HepMsg) ParseHep3(udpPacket []byte) error {
 		case AUTHENTICATE_KEY:
 			hepMsg.AuthenticateKey = string(chunkBody)
 		case PACKET_PAYLOAD:
-			hepMsg.Body += string(chunkBody)
+			for _, element := range chunkBody {
+				hepMsg.Body = append(hepMsg.Body, element)
+			}
 		case COMPRESSED_PAYLOAD:
 		case INTERNAL_C:
 		default:

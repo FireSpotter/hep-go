@@ -146,7 +146,7 @@ func (hepMsg *HepMsg) ParseHep1(udpPacket []byte) error {
 	hepMsg.Timestamp = uint32(time.Now().Unix())
 	if len(udpPacket[16:packetLength-4]) > 1 {
 		var err error
-		hepMsg.SipMsg, err = parser.ParseMessage(udpPacket[16:packetLength], false, true)
+		hepMsg.SipMsg, err = parser.ParseMessage(udpPacket[16:packetLength], true)
 		if err != nil {
 			return err
 		}
@@ -172,7 +172,7 @@ func (hepMsg *HepMsg) ParseHep2(udpPacket []byte) error {
 	hepMsg.Body = udpPacket[28:]
 	if len(udpPacket[28:packetLength-4]) > 1 {
 		var err error
-		hepMsg.SipMsg, err = parser.ParseMessage(udpPacket[28:packetLength], false, true)
+		hepMsg.SipMsg, err = parser.ParseMessage(udpPacket[28:packetLength], true)
 		if err != nil {
 			return err
 		}

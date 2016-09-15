@@ -168,7 +168,7 @@ func (hepMsg *HepMsg) ParseHep2(udpPacket []byte) error {
 	hepMsg.Ip4SourceAddress = net.IP(udpPacket[8:12]).String()
 	hepMsg.Ip4DestinationAddress = net.IP(udpPacket[12:16]).String()
 	hepMsg.Timestamp = binary.LittleEndian.Uint32(udpPacket[16:20])
-	hepMsg.TimestampMicro = float64(hepMsg.Timestamp) + float64(binary.LittleEndian.Uint64(udpPacket[20:24]))/1000000.0
+	hepMsg.TimestampMicro = float64(hepMsg.Timestamp) + float64(binary.LittleEndian.Uint32(udpPacket[20:24]))/1000000.0
 	hepMsg.CaptureAgentId = binary.BigEndian.Uint16(udpPacket[24:26])
 	hepMsg.Body = udpPacket[28:]
 	if len(udpPacket[28:packetLength-4]) > 1 {
@@ -215,7 +215,7 @@ func (hepMsg *HepMsg) ParseHep3(udpPacket []byte) error {
 		case TIMESTAMP:
 			hepMsg.Timestamp = binary.BigEndian.Uint32(chunkBody)
 		case TIMESTAMP_MICRO:
-			hepMsg.TimestampMicro = float64(hepMsg.Timestamp) + float64(binary.BigEndian.Uint64(chunkBody))/1000000.0
+			hepMsg.TimestampMicro = float64(hepMsg.Timestamp) + float64(binary.BigEndian.Uint32(chunkBody))/1000000.0
 		case PROTOCOL_TYPE:
 			hepMsg.ProtocolType = chunkBody[0]
 		case CAPTURE_AGENT_ID:

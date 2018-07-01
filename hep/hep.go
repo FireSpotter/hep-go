@@ -11,8 +11,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/FireSpotter/gossip/base"
-	"github.com/FireSpotter/gossip/parser"
+	"github.com/dialpad/gossip/base"
+	"github.com/dialpad/gossip/parser"
 )
 
 /*************************************

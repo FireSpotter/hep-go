@@ -207,7 +207,7 @@ func (hepMsg *HepMsg) ParseHep3(udpPacket []byte) error {
 		case IP6_SOURCE_ADDRESS:
 			hepMsg.Ip6SourceAddress = net.IP(chunkBody).String()
 		case IP6_DESTINATION_ADDRESS:
-			hepMsg.Ip4DestinationAddress = net.IP(chunkBody).String()
+			hepMsg.Ip6DestinationAddress = net.IP(chunkBody).String()
 		case SOURCE_PORT:
 			hepMsg.SourcePort = binary.BigEndian.Uint16(chunkBody)
 		case DESTINATION_PORT:
